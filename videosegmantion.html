@@ -1,0 +1,44 @@
+<html>
+ <head>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+    <!-- Load BodyPix -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+ </head>
+
+
+  <body>
+	<video autoplay loop muted id="video" src="saitou1.mp4"  width="300" height="300"></video>
+    <canvas id="output" width="300" height="300"></canvas>
+  </body>
+  <!-- Place your code in the script tag below. You can also use an external .js file -->
+  <script>
+    const video = document.getElementById('video');
+	  video.addEventListener('loadeddata', (event) => {
+	  console.log("実行可能");
+	  loadAndPredict();
+	  });
+
+	 async function loadAndPredict() {
+		const net = await bodyPix.load({
+		architecture: 'MobileNetV1',
+		outputStride: 16,
+		multiplier: 0.75,
+		quantBytes: 2
+		});
+	 var a=1;
+	 while (a==1){
+      const segmentation = await net.segmentMultiPerson(video);
+	  console.log(segmentation);
+	  const coloredPartImage = bodyPix.toMask(segmentation);
+	  const opacity = 0.7;
+	  const flipHorizontal = false;
+	  const maskBlurAmount = 0;
+	  const canvas = document.getElementById('output');
+	bodyPix.drawMask(
+     canvas, video, coloredPartImage, opacity, maskBlurAmount,
+     flipHorizontal);
+    }
+	}
+</script>
+</html>
